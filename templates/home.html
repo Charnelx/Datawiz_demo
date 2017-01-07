@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    {% if user.is_authenticated %}
+            You are currently logged in as {{ user.email }}
+        {% else %}
+            Welcome, guest.
+    {% endif %}
+
+    <br>
+    <br>
+
+    {% if info %}
+        <div class="panel panel-default">
+          <div class="panel-heading">Information</div>
+        </div>
+        <div class="panel panel-primary panel-info">
+          <div class="panel-heading">General</div>
+          <div class="panel-body">
+              <p>Username: {{ info.name }}</p>
+              <p>Timezone: UTC {% if info.timezone >= 0 %} + {% else %} - {% endif %} {{ info.timezone }}</p>
+              <p>Root category: {{ info.root_category }}</p>
+              <p>Observation period: {{ info.date_from|date:"d.m.Y" }} - {{ info.date_to|date:"d.m.Y" }}</p>
+          </div>
+        </div>
+
+        <div class="panel panel-primary panel-info">
+          <div class="panel-heading">Shops</div>
+          <div class="panel-body">
+                <table class="table" id="white_top">
+                <tr>
+                    <th>Shop ID</th>
+                    <th>Shop name</th>
+                </tr>
+              {% for shop_id, shop_name in info.shops.items %}
+                  <tr>
+                    <td>{{ shop_id }}</td>
+                      <td>{{ shop_name }}</td>
+                  </tr>
+              {% endfor %}
+                </table>
+          </div>
+        </div>
+    {% else %}
+        <img src="{% static '/img/bender.jpg' %}" class="img-rounded" alt="Login to view content"">
+    {% endif %}
+</div>
+{% endblock %}
