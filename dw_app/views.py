@@ -5,7 +5,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.http import JsonResponse
 from django.template import RequestContext
 from .forms import *
-from .helpers.dwlib import api_conn, date_convertor
+from .helpers.dwlib import api_conn, date_convertor, get_salary_data
 from datetime import datetime
 from django.views.decorators.cache import cache_page
 from django.core.cache import cache
@@ -38,14 +38,13 @@ def general_indicators(request):
         initial_end = info_data['date_to'].strftime("%m.%d.%Y")
 
         if request.method == "POST":
-            # cache.set("GREAZZVSL", "value", timeout=25)
-            #
-            # print(cache.get('GREAZZVSL', 'default value'))
-
+            # get date range from ajax request
             date_range_raw = request.POST.get('info', None)
             if date_range_raw:
+                # convert dates for use with Datawiz API
                 start_date, end_date, period = date_convertor(date_range_raw)
 
+                # creates i_hope_unique key to store response data in cache
                 h_key = 'req_' + str(hash(start_date+end_date))
 
                 # in_cache = cache.get(h_key, None)
@@ -54,6 +53,8 @@ def general_indicators(request):
                 if in_cache:
                     return HttpResponse(in_cache, content_type='application/json')
                 else:
+
+                    # request to API to get products sales data
                     df = conn.get_products_sale(
                                   date_from = start_date,
                                   date_to = end_date,
@@ -61,25 +62,15 @@ def general_indicators(request):
                                   view_type = 'raw',
                                   by = ['turnover', 'qty', 'receipts_qty', 'profit'])
 
+
                     if not df.empty:
-                        df.sort_values(['date'], inplace=True)
-                        df.set_index(['date'], inplace=True)
-
-                        result = df.groupby([df.index]).aggregate('sum')
-                        result['turnover_diff'] = result['turnover'].diff()
-
-                        format = lambda x: "{0:.2f}".format(x)
-                        result = result.applymap(format)
-
-                        json_dt = result.reset_index().to_json(orient='records')
+                        html_df = get_salary_data(df)
 
                         # cache.set(h_key, json_dt, timeout=25)
 
-                        return HttpResponse(json_dt, content_type='application/json')
-                        # return JsonResponse(json_dt)
-
-                return JsonResponse({'empty': True})
-
+                        return HttpResponse(html_df, content_type='text/html')
+                        # return HttpResponse(json_dt, content_type='application/json')
+                return HttpResponse('', content_type='text/html')
         else:
             daterange_form = DateRangeForm(required=True, initial_start_date=initial_start,
                                            initial_end_date=initial_end)
