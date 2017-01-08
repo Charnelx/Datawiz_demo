@@ -7,6 +7,8 @@ from django.template import RequestContext
 from .forms import *
 from .helpers.dwlib import api_conn, date_convertor
 from datetime import datetime
+from django.views.decorators.cache import cache_page
+from django.core.cache import cache
 
 
 def index(request):
@@ -22,6 +24,7 @@ def index(request):
 
     return render(request, "home.html")
 
+
 @login_required(login_url='/login/')
 def general_indicators(request):
         email = request.user.email
@@ -35,32 +38,45 @@ def general_indicators(request):
         initial_end = info_data['date_to'].strftime("%m.%d.%Y")
 
         if request.method == "POST":
+            # cache.set("GREAZZVSL", "value", timeout=25)
+            #
+            # print(cache.get('GREAZZVSL', 'default value'))
 
             date_range_raw = request.POST.get('info', None)
             if date_range_raw:
                 start_date, end_date, period = date_convertor(date_range_raw)
 
-                df = conn.get_products_sale(
-                              date_from = start_date,
-                              date_to = end_date,
-                              interval = period,
-                              view_type = 'raw',
-                              by = ['turnover', 'qty', 'receipts_qty', 'profit'])
+                h_key = 'req_' + str(hash(start_date+end_date))
 
-                if not df.empty:
-                    df.sort_values(['date'], inplace=True)
-                    df.set_index(['date'], inplace=True)
+                # in_cache = cache.get(h_key, None)
+                in_cache = False
 
-                    result = df.groupby([df.index]).aggregate('sum')
-                    result['turnover_diff'] = result['turnover'].diff()
+                if in_cache:
+                    return HttpResponse(in_cache, content_type='application/json')
+                else:
+                    df = conn.get_products_sale(
+                                  date_from = start_date,
+                                  date_to = end_date,
+                                  interval = period,
+                                  view_type = 'raw',
+                                  by = ['turnover', 'qty', 'receipts_qty', 'profit'])
 
-                    format = lambda x: "{0:.2f}".format(x)
-                    result = result.applymap(format)
+                    if not df.empty:
+                        df.sort_values(['date'], inplace=True)
+                        df.set_index(['date'], inplace=True)
 
-                    json_dt = result.reset_index().to_json(orient='records')
+                        result = df.groupby([df.index]).aggregate('sum')
+                        result['turnover_diff'] = result['turnover'].diff()
 
-                    return HttpResponse(json_dt, content_type='application/json')
-                    # return JsonResponse(json_dt)
+                        format = lambda x: "{0:.2f}".format(x)
+                        result = result.applymap(format)
+
+                        json_dt = result.reset_index().to_json(orient='records')
+
+                        # cache.set(h_key, json_dt, timeout=25)
+
+                        return HttpResponse(json_dt, content_type='application/json')
+                        # return JsonResponse(json_dt)
 
                 return JsonResponse({'empty': True})
 
