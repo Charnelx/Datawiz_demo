@@ -7,4 +7,3 @@ numpy
 django-redis
 psycopg2==2.5.3
 gunicorn==19.6.0
-git+https://github.com/Charnelx/pythonAPI.git
