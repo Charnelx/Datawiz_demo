@@ -5,7 +5,7 @@
 
     <div class="hide">From {{ daterange_form.start_date }} to {{ daterange_form.end_date }}</div>
 
-    <h2>General salary information</h2>
+    <h2>Products sales dynamics information</h2>
 
     <div class="container">
         <blockquote>
@@ -30,7 +30,7 @@
 				    }],
                 dateFormat: 'dd.mm.yy',
 			    altFormat: 'dd.mm.yy',
-                change: function(event, data) { generalAJAX() }
+                change: function(event, data) { diffAJAX() }
             }
         ); });
     </script>

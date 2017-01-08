@@ -77,3 +77,17 @@ def get_salary_data(dataframe):
 
     s = result.to_html(classes='table', float_format=lambda x: "{0:.2f}".format(x))
     return s
+
+def get_dynamic_data(dataframe):
+    dataframe.sort_values(['date'], inplace=True)
+
+    dataframe[['qty_change', 'profit_change']] = dataframe.groupby('name')[['qty', 'profit']].diff()
+
+    increase = dataframe[dataframe.qty_change > 0][['name', 'qty_change', 'profit_change']]
+
+    decrease = dataframe[dataframe.qty_change < 0][['name', 'qty_change', 'profit_change']]
+
+    html_inc = increase.to_html(classes='table', float_format=lambda x: "{0:.2f}".format(x), index=False)
+    html_dec = decrease.to_html(classes='table', float_format=lambda x: "{0:.2f}".format(x), index=False)
+
+    return html_inc, html_dec

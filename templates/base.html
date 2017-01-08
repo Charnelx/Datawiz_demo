@@ -14,6 +14,7 @@
 
 	<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
     <script type="text/javascript" src="{% static '/js/requester.js' %}"></script>
+    <script type="text/javascript" src="{% static '/js/csrf_tokenizer.js' %}"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
     <script type="text/javascript" src="{% static '/js/moment.min.js' %}"></script>
@@ -38,6 +39,7 @@
                     <ul class="nav navbar-nav">
                         <li><a href="{% url 'home' %}">Home</a></li>
                         <li><a href="{% url 'general' %}">General</a></li>
+                        <li><a href="{% url 'difference' %}">Sales dynamics</a></li>
                     </ul>
                     <ul class="nav navbar-nav navbar-right">
                         <li><a href="{% url 'logout' %}">Log Out</a></li>

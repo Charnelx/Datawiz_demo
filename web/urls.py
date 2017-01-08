@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.contrib import admin
-from dw_app.views import index, register_page, general_indicators
+from dw_app.views import index, register_page, general_indicators, products_diff
 from django.contrib.auth.views import login, logout
 
 
@@ -25,5 +25,6 @@ urlpatterns = [
     url(r'^logout/$', logout, {'next_page': '/login/'}, name='logout'),
     url(r'^register/$', register_page, name='register'),
     url(r'^general/$', general_indicators, name='general'),
+    url(r'^difference/$', products_diff, name='difference'),
     url(r'^$', index, name='home'),
 ]
