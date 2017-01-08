@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 
 import os
 
-ALLOWED_HOSTS = ['dw-demo.herokuapp.com']
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -39,8 +38,7 @@ SECRET_KEY = '!)z6sn4(f27z3@0&%68j)-tq71r*jyqsvgwt2w5f12=ei)#j=c'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ['dw-demo.herokuapp.com']
 
 # Application definition
 
