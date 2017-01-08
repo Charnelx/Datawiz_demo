@@ -36,7 +36,8 @@
           <div class="collapse navbar-collapse" id="navbar">
                 {% if user.is_authenticated %}
                     <ul class="nav navbar-nav">
-                        <li></li>
+                        <li><a href="{% url 'home' %}">Home</a></li>
+                        <li><a href="{% url 'general' %}">General</a></li>
                     </ul>
                     <ul class="nav navbar-nav navbar-right">
                         <li><a href="{% url 'logout' %}">Log Out</a></li>
