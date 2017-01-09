@@ -96,8 +96,8 @@ DATABASES = {
     }
 }
 
-# SESSION_ENGINE = "django.contrib.sessions.backends.cache"
-# SESSION_CACHE_ALIAS = "default"
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+SESSION_CACHE_ALIAS = "default"
 #
 # redis_url = urlparse(os.environ.get('REDIS_URL'))
 #
@@ -111,6 +111,20 @@ DATABASES = {
 #          }
 #     }
 # }
+redis_url = urlparse(os.environ.get('REDIS_URL'))
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "{0}:{1}".format(redis_url.hostname, redis_url.port),
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "PASSWORD": redis_url.password,
+             "DB": 0,
+        },
+        "KEY_PREFIX": "dwiz"
+    }
+}
 
 # SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 # SESSION_CACHE_ALIAS = "default"
