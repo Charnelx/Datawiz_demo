@@ -36,7 +36,7 @@ SECRET_KEY = '!)z6sn4(f27z3@0&%68j)-tq71r*jyqsvgwt2w5f12=ei)#j=c'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['dw-demo.herokuapp.com']
+ALLOWED_HOSTS = ['dw-demo.herokuapp.com', '127.0.0.1']
 
 # Application definition
 
@@ -150,3 +150,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
 LOGIN_REDIRECT_URL = '/'
+
+# Simplified static file serving.
+# https://warehouse.python.org/project/whitenoise/
+
+STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
