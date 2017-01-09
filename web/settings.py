@@ -96,6 +96,9 @@ DATABASES = {
     }
 }
 
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+SESSION_CACHE_ALIAS = "default"
+
 redis_url = urlparse(os.environ.get('REDIS_URL'))
 
 CACHES = {
