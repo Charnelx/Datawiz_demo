@@ -73,7 +73,7 @@ def products_diff(request):
                     result_html = '<h2>Positive dynamic</h2>' + html_inc + '<br><br>' + '<h2>Negative dynamic</h2>' + html_dec
 
                     # uncomment to use cache
-                    cache.set(h_key, result_html, timeout=25)
+                    cache.set(h_key, result_html, timeout=60*5)
 
             return HttpResponse(result_html, content_type='text/html')
     else:
@@ -126,7 +126,7 @@ def general_indicators(request):
                     if not df.empty:
                         html_df = get_salary_data(df)
 
-                        cache.set(h_key, html_df, timeout=25)
+                        cache.set(h_key, html_df, timeout=60*5)
 
                         return HttpResponse(html_df, content_type='text/html')
                 return HttpResponse('', content_type='text/html')
