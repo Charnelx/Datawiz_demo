@@ -2,10 +2,12 @@ from dwapi import datawiz
 from datetime import datetime, timedelta
 import pandas as pd
 
+# datawiz credentials/connection object
 def api_conn(login, password):
     dw = datawiz.DW(login, password)
     return dw
 
+# convert dates range to appropriate format to use with dwapi
 def date_convertor(date_range):
     week = timedelta(weeks=1)
     month = timedelta(weeks=4)
@@ -33,14 +35,16 @@ def date_convertor(date_range):
 
     return conv_start, conv_end, period
 
+# make magic transformations on dataframe to obtain diff columns
 def get_salary_data(dataframe):
     dataframe.sort_values(['date'], inplace=True)
     dataframe.set_index(['date'], inplace=True)
 
+    # group by dates and sum all columns
     num_columns = ['turnover', 'qty', 'receipts_qty', 'profit']
     grouped_sum = dataframe.groupby([dataframe.index])[num_columns].aggregate('sum')
 
-    # transpose dataframe (swap rows with columns)
+    # transpose dataframe to swap rows with columns
     df = grouped_sum.T
 
     # create difference dataframe
@@ -75,18 +79,23 @@ def get_salary_data(dataframe):
     # applying change
     result.columns = columns
 
+    # export to html with delimiting floats for better look
     s = result.to_html(classes='table', float_format=lambda x: "{0:.2f}".format(x))
     return s
 
 def get_dynamic_data(dataframe):
     dataframe.sort_values(['date'], inplace=True)
 
+    # create two new columns for difference in qty and profit values based on grouping by product name
     dataframe[['qty_change', 'profit_change']] = dataframe.groupby('name')[['qty', 'profit']].diff()
 
+    # slicing only rows that have positive difference
     increase = dataframe[dataframe.qty_change > 0][['name', 'qty_change', 'profit_change']]
 
+    # slicing only rows that have negative difference
     decrease = dataframe[dataframe.qty_change < 0][['name', 'qty_change', 'profit_change']]
 
+    # export to html with delimiting floats and deleting index for better look
     html_inc = increase.to_html(classes='table', float_format=lambda x: "{0:.2f}".format(x), index=False)
     html_dec = decrease.to_html(classes='table', float_format=lambda x: "{0:.2f}".format(x), index=False)
 

@@ -1,9 +1,6 @@
-from django.core.exceptions import ValidationError
-from django.shortcuts import render, render_to_response
+from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, HttpResponseRedirect
-from django.http import JsonResponse
-from django.template import RequestContext
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from .forms import *
 from .helpers.dwlib import api_conn, date_convertor, get_salary_data, get_dynamic_data
 from datetime import datetime
@@ -12,17 +9,19 @@ from django.core.cache import cache
 
 
 def index(request):
+    context = dict()
+
     if request.user.is_authenticated():
         email = request.user.email
         psw = request.user.api_pass
 
+        # return datawiz credentials/connection object
         conn = api_conn(email, psw)
 
         info_data = conn.get_client_info()
+        context['info'] = info_data
 
-        return render(request, "home.html", {'info': info_data})
-
-    return render(request, "home.html")
+    return render(request, "home.html", context)
 
 @login_required(login_url='/login/')
 def products_diff(request):
@@ -33,19 +32,24 @@ def products_diff(request):
 
     info_data = conn.get_client_info()
 
+    # get observation interval
     initial_start = info_data['date_from'].strftime("%m.%d.%Y")
     initial_end = info_data['date_to'].strftime("%m.%d.%Y")
 
     if request.method == "POST":
         # get date range from ajax request
         date_range_raw = request.POST.get('info', None)
+
+        # initial var for response to ajax script
+        result_html = ''
         if date_range_raw:
             # convert dates for use with Datawiz API
             start_date, end_date, period = date_convertor(date_range_raw)
 
             # creates i_hope_unique key to store response data in cache
-            h_key = 'req_' + str(hash(start_date + end_date))
+            h_key = 'dyn_' + str(hash(start_date + end_date))
 
+            # uncomment to use cache
             # in_cache = cache.get(h_key, None)
             in_cache = False
 
@@ -62,15 +66,16 @@ def products_diff(request):
                     by=['turnover', 'qty', 'receipts_qty', 'profit'])
 
                 if not df.empty:
+
+                    # get transformed data
                     html_inc, html_dec = get_dynamic_data(df)
 
                     result_html = '<h2>Positive dynamic</h2>' + html_inc + '<br><br>' + '<h2>Negative dynamic</h2>' + html_dec
 
+                    # uncomment to use cache
                     # cache.set(h_key, json_dt, timeout=25)
 
-                    return HttpResponse(result_html, content_type='text/html')
-                    # return HttpResponse(json_dt, content_type='application/json')
-            return HttpResponse('', content_type='text/html')
+            return HttpResponse(result_html, content_type='text/html')
     else:
         daterange_form = DateRangeForm(required=True, initial_start_date=initial_start,
                                        initial_end_date=initial_end)
@@ -88,6 +93,7 @@ def general_indicators(request):
 
         info_data = conn.get_client_info()
 
+        # get observation interval
         initial_start = info_data['date_from'].strftime("%m.%d.%Y")
         initial_end = info_data['date_to'].strftime("%m.%d.%Y")
 
@@ -99,7 +105,7 @@ def general_indicators(request):
                 start_date, end_date, period = date_convertor(date_range_raw)
 
                 # creates i_hope_unique key to store response data in cache
-                h_key = 'req_' + str(hash(start_date+end_date))
+                h_key = 'gen_' + str(hash(start_date+end_date))
 
                 # in_cache = cache.get(h_key, None)
                 in_cache = False
@@ -145,6 +151,5 @@ def register_page(request):
             return HttpResponseRedirect('/login/')
     else:
         form = RegistrationForm()
-    # variables = RequestContext(request, {'form': form})
 
     return render(request, 'register.html', {'form': form})
