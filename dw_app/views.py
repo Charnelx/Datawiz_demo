@@ -50,8 +50,8 @@ def products_diff(request):
             h_key = 'dyn_' + str(hash(start_date + end_date))
 
             # uncomment to use cache
-            # in_cache = cache.get(h_key, None)
-            in_cache = False
+            in_cache = cache.get(h_key, None)
+            # in_cache = False
 
             if in_cache:
                 return HttpResponse(in_cache, content_type='text/html')
@@ -73,7 +73,7 @@ def products_diff(request):
                     result_html = '<h2>Positive dynamic</h2>' + html_inc + '<br><br>' + '<h2>Negative dynamic</h2>' + html_dec
 
                     # uncomment to use cache
-                    # cache.set(h_key, json_dt, timeout=25)
+                    cache.set(h_key, result_html, timeout=25)
 
             return HttpResponse(result_html, content_type='text/html')
     else:
@@ -107,8 +107,8 @@ def general_indicators(request):
                 # creates i_hope_unique key to store response data in cache
                 h_key = 'gen_' + str(hash(start_date+end_date))
 
-                # in_cache = cache.get(h_key, None)
-                in_cache = False
+                in_cache = cache.get(h_key, None)
+                # in_cache = False
 
                 if in_cache:
                     return HttpResponse(in_cache, content_type='text/html')
@@ -126,10 +126,9 @@ def general_indicators(request):
                     if not df.empty:
                         html_df = get_salary_data(df)
 
-                        # cache.set(h_key, json_dt, timeout=25)
+                        cache.set(h_key, html_df, timeout=25)
 
                         return HttpResponse(html_df, content_type='text/html')
-                        # return HttpResponse(json_dt, content_type='application/json')
                 return HttpResponse('', content_type='text/html')
         else:
             daterange_form = DateRangeForm(required=True, initial_start_date=initial_start,
