@@ -9,8 +9,9 @@ from django.core.cache import cache
 
 
 def index(request):
+    context = dict()
+    
     if request.user.is_authenticated():
-        context = dict()
 
         email = request.user.email
         psw = request.user.api_pass
@@ -20,8 +21,8 @@ def index(request):
 
         info_data = conn.get_client_info()
         context['info'] = info_data
-        return render(request, "home.html", context)
-    return render(request, "home.html")
+
+    return render(request, "home.html", context)
 
 @login_required(login_url='/login/')
 def products_diff(request):
