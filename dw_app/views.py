@@ -10,7 +10,7 @@ from django.core.cache import cache
 
 def index(request):
     context = dict()
-    
+
     if request.user.is_authenticated():
 
         email = request.user.email
