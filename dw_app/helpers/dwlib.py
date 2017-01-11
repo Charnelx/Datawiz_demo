@@ -2,6 +2,10 @@ from dwapi import datawiz
 from datetime import datetime, timedelta
 import pandas as pd
 
+# get average receipts value
+def get_receipts_avr(dataframe):
+    return dataframe['profit'] / dataframe['receipts_qty']
+
 # datawiz credentials/connection object
 def api_conn(login, password):
     dw = datawiz.DW(login, password)
@@ -43,6 +47,9 @@ def get_salary_data(dataframe):
     # group by dates and sum all columns
     num_columns = ['turnover', 'qty', 'receipts_qty', 'profit']
     grouped_sum = dataframe.groupby([dataframe.index])[num_columns].aggregate('sum')
+    # calculating receipts average value
+    grouped_sum['receipts_avr'] = grouped_sum.apply(get_receipts_avr, axis=1)
+    grouped_sum = grouped_sum.loc[:,['turnover', 'qty', 'receipts_qty', 'receipts_avr']]
 
     # transpose dataframe to swap rows with columns
     df = grouped_sum.T
