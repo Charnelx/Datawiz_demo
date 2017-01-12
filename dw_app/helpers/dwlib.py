@@ -1,4 +1,5 @@
 from dwapi import datawiz
+from dwapi.datawiz_auth import APIGetError
 from datetime import datetime, timedelta
 import pandas as pd
 
@@ -9,8 +10,12 @@ def get_receipts_avr(dataframe):
 
 # datawiz credentials/connection object
 def api_conn(login, password):
-    dw = datawiz.DW(login, password)
-    return dw
+    try:
+        dw = datawiz.DW(login, password)
+        dw.get_client_info()
+        return dw
+    except APIGetError:
+        return None
 
 # convert dates range to appropriate format to use with dwapi
 def date_convertor(date_range):

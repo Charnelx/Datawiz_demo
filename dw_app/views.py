@@ -19,25 +19,36 @@ def index(request):
         # return datawiz credentials/connection object
         conn = api_conn(email, psw)
 
-        info_data = conn.get_client_info()
-        context['info'] = info_data
+        if conn:
+            info_data = conn.get_client_info()
+            context['info'] = info_data
 
     return render(request, "home.html", context)
 
 @login_required(login_url='/login/')
 def products_diff(request):
+    flag = False
+    
     email = request.user.email
     psw = request.user.api_pass
 
     conn = api_conn(email, psw)
 
-    info_data = conn.get_client_info()
+    if conn:
+        info_data = conn.get_client_info()
 
-    # get observation interval
-    initial_start = info_data['date_from'].strftime("%m.%d.%Y")
-    initial_end = info_data['date_to'].strftime("%m.%d.%Y")
+        # get observation interval
+        initial_start = info_data['date_from'].strftime("%m.%d.%Y")
+        initial_end = info_data['date_to'].strftime("%m.%d.%Y")
 
-    if request.method == "POST":
+        flag = True
+    else:
+        flag = False
+
+        initial_start = datetime.now().strftime("%m.%d.%Y")
+        initial_end = datetime.now().strftime("%m.%d.%Y")
+
+    if request.method == "POST" and flag:
         # get date range from ajax request
         date_range_raw = request.POST.get('info', None)
 
@@ -87,18 +98,28 @@ def products_diff(request):
 
 @login_required(login_url='/login/')
 def general_indicators(request):
+        flag = False
+
         email = request.user.email
         psw = request.user.api_pass
 
         conn = api_conn(email, psw)
 
-        info_data = conn.get_client_info()
+        if conn:
+            info_data = conn.get_client_info()
 
-        # get observation interval
-        initial_start = info_data['date_from'].strftime("%m.%d.%Y")
-        initial_end = info_data['date_to'].strftime("%m.%d.%Y")
+            # get observation interval
+            initial_start = info_data['date_from'].strftime("%m.%d.%Y")
+            initial_end = info_data['date_to'].strftime("%m.%d.%Y")
 
-        if request.method == "POST":
+            flag = True
+        else:
+            flag = False
+
+            initial_start = datetime.now().strftime("%m.%d.%Y")
+            initial_end = datetime.now().strftime("%m.%d.%Y")
+
+        if request.method == "POST" and flag:
             # get date range from ajax request
             date_range_raw = request.POST.get('info', None)
             if date_range_raw:
